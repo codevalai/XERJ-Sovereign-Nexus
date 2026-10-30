@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import { SEED_CATALOGUE_ENTRIES, DOMAIN_STATISTICS, STANDALONE_PASSAGES_BANK } from './src/server/xerjCatalogueData.js';
@@ -29,6 +30,11 @@ import { registerAgenticDiscoveryEndpoints } from './src/server/agenticDiscovery
 import { XerjPackValidator } from './src/server/xerjPackValidator.js';
 import { xerjGossipMesh } from './src/server/xerjGossipMesh.js';
 import { bottleneckEngine } from './src/server/xerjBottleneckEngine.js';
+import { ModelAgnosticSemanticNormalizer } from './src/server/masnMiddleware.js';
+import { XerjNeuralCheckpoint } from './src/server/neuralCheckpoint.js';
+import { XerjP2PBitswapStream } from './src/server/p2pBitswapStream.js';
+import { XerjDidPassportManager } from './src/server/didPassport.js';
+import { byzantineConsensus } from './src/server/byzantineSwarmConsensus.js';
 import fs from 'fs';
 
 dotenv.config();
@@ -935,6 +941,171 @@ app.get('/api/openapi.json', (_req: Request, res: Response) => {
     },
   };
   return res.json(openApiSpec);
+});
+
+// ==============================================================================
+// 4 Max-Out Expansion Modules & Autonomous Byzantine Swarm Consensus Routes
+// ==============================================================================
+
+// 1. MASN Middleware Module (POST /api/masn/normalize)
+app.post('/api/masn/normalize', (req: Request, res: Response) => {
+  try {
+    const { rawPassage, targetModel, symbol, domain, lineRange } = req.body;
+    if (!rawPassage || !targetModel) {
+      return res.status(400).json({ error: 'rawPassage and targetModel are required' });
+    }
+    const normalized = ModelAgnosticSemanticNormalizer.normalizePassage(rawPassage, targetModel, { symbol, domain, lineRange });
+    const stats = ModelAgnosticSemanticNormalizer.calculateTokenSavings(rawPassage, normalized);
+    return res.json({ targetModel, normalized, ...stats });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'MASN normalization failed' });
+  }
+});
+
+// 2. Zero-Loss Neural Checkpoint Module (POST /api/neural/snapshot, GET /api/neural/snapshot/:hash)
+app.post('/api/neural/snapshot', async (req: Request, res: Response) => {
+  try {
+    const snapshot = req.body;
+    if (!snapshot.agentId) {
+      return res.status(400).json({ error: 'agentId is required' });
+    }
+    const receipt = await XerjNeuralCheckpoint.createSnapshot(snapshot);
+    return res.status(201).json({ success: true, receipt });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Snapshot creation failed' });
+  }
+});
+
+app.get('/api/neural/snapshot/:hash', (req: Request, res: Response) => {
+  const snapshot = XerjNeuralCheckpoint.restoreSnapshot(req.params.hash);
+  if (!snapshot) {
+    return res.status(404).json({ error: 'Snapshot not found' });
+  }
+  return res.json({ success: true, snapshot });
+});
+
+app.get('/api/neural/snapshots', (_req: Request, res: Response) => {
+  const snapshots = XerjNeuralCheckpoint.listSnapshots();
+  return res.json({ snapshots, count: snapshots.length });
+});
+
+// 3. P2P BitTorrent-Style Chunk Streaming (POST /api/bitswap/register, GET /api/bitswap/stream/:id)
+app.post('/api/bitswap/register', (req: Request, res: Response) => {
+  try {
+    const { dataBase64, chunkHash, bloomBitOffset } = req.body;
+    if (!dataBase64) {
+      return res.status(400).json({ error: 'dataBase64 is required' });
+    }
+    const buffer = Buffer.from(dataBase64, 'base64');
+    const hash = chunkHash || crypto.createHash('sha256').update(buffer).digest('hex');
+    const descriptor = XerjP2PBitswapStream.registerChunk(hash, buffer, bloomBitOffset || 0);
+    return res.status(201).json({ success: true, descriptor });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Chunk registration failed' });
+  }
+});
+
+app.get('/api/bitswap/stream/:hashOrCid', (req: Request, res: Response) => {
+  const chunk = XerjP2PBitswapStream.streamChunk(req.params.hashOrCid);
+  if (!chunk) {
+    return res.status(404).json({ error: 'Bitswap chunk not found on mesh' });
+  }
+  res.setHeader('Content-Type', 'application/octet-stream');
+  return res.send(chunk);
+});
+
+app.get('/api/bitswap/chunks', (_req: Request, res: Response) => {
+  const chunks = XerjP2PBitswapStream.listAvailableChunks();
+  return res.json({ chunks, count: chunks.length });
+});
+
+// 4. Universal Autonomous DID Passports (POST /api/passport/issue, GET /api/passports)
+app.post('/api/passport/issue', async (req: Request, res: Response) => {
+  try {
+    const { agentName, publicKeyHex, roles } = req.body;
+    if (!agentName) {
+      return res.status(400).json({ error: 'agentName is required' });
+    }
+    const passport = await XerjDidPassportManager.issueDidPassport(agentName, publicKeyHex, roles);
+    return res.status(201).json({ success: true, passport });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Passport issue failed' });
+  }
+});
+
+app.get('/api/passport/:did', (req: Request, res: Response) => {
+  const passport = XerjDidPassportManager.getPassport(req.params.did);
+  if (!passport) {
+    return res.status(404).json({ error: 'DID Passport not found' });
+  }
+  return res.json(passport);
+});
+
+app.get('/api/passports', (_req: Request, res: Response) => {
+  const passports = XerjDidPassportManager.listPassports();
+  return res.json({ passports, count: passports.length });
+});
+
+// 5. Autonomous Byzantine Swarm Consensus & Encrypted Ledger (/_swarm/consensus)
+app.post('/_swarm/consensus/propose', (req: Request, res: Response) => {
+  try {
+    const result = byzantineConsensus.submitProposal(req.body);
+    return res.status(result.accepted ? 200 : 400).json(result);
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Consensus proposal failed' });
+  }
+});
+
+app.post('/_swarm/consensus/commit', async (req: Request, res: Response) => {
+  try {
+    const { proposalId, totalNodes } = req.body;
+    if (!proposalId) {
+      return res.status(400).json({ error: 'proposalId is required' });
+    }
+    const receipt = await byzantineConsensus.attemptConsensusCommit(proposalId, totalNodes);
+    if (!receipt) {
+      return res.status(422).json({
+        error: 'Quorum threshold not reached. 67% (2/3 majority) required for Byzantine commit.',
+        status: 'QUORUM_PENDING',
+      });
+    }
+    return res.json({ success: true, receipt });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Consensus commit failed' });
+  }
+});
+
+app.get('/_swarm/consensus/blocks', (_req: Request, res: Response) => {
+  const blocks = byzantineConsensus.getCommittedBlocks();
+  return res.json({ blocks, count: blocks.length });
+});
+
+app.get('/_swarm/consensus/block/:id', (req: Request, res: Response) => {
+  const block = byzantineConsensus.getBlock(req.params.id);
+  if (!block) {
+    return res.status(404).json({ error: 'Consensus block not found' });
+  }
+  return res.json(block);
+});
+
+app.get('/_swarm/consensus/proposals', (_req: Request, res: Response) => {
+  const proposals = byzantineConsensus.getProposals();
+  return res.json({ proposals, count: proposals.length });
+});
+
+app.get('/_swarm/consensus/metrics', (_req: Request, res: Response) => {
+  const metrics = byzantineConsensus.getMetrics();
+  return res.json(metrics);
+});
+
+app.post('/_swarm/consensus/simulate-round', async (req: Request, res: Response) => {
+  try {
+    const prefix = req.body.prefix || 'bft-sim';
+    const result = await byzantineConsensus.simulateByzantineConsensusRound(prefix);
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Byzantine simulation failed' });
+  }
 });
 
 // Mount Vite or serve static dist

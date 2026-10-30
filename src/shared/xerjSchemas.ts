@@ -911,4 +911,61 @@ export interface UniversalProtocolTranslation {
   latencyMicros: number;
 }
 
+// ==============================================================================
+// Byzantine Fault-Tolerant Swarm Consensus & Planetary Lattice Types
+// ==============================================================================
+
+export type SwarmActionType =
+  | 'PROMPT_MUTATION'
+  | 'SKILL_REGISTRATION'
+  | 'CORPUS_PATCH'
+  | 'POLICY_MUTATION'
+  | 'CROSS_ORGANIZATION_TASK';
+
+export interface SwarmProposal {
+  nodeId: string;
+  proposalId: string;
+  actionType: SwarmActionType;
+  payload: Record<string, any>;
+  payloadHash: string;
+  signature: string;
+  timestamp: string;
+  isByzantineRogue?: boolean;
+}
+
+export interface ConsensusReceipt {
+  blockId: string;
+  proposalId: string;
+  actionType: SwarmActionType;
+  totalVotes: number;
+  honestVotes: number;
+  byzantineVotesRejected: number;
+  quorumReached: boolean;
+  quorumThreshold: number;
+  stateRootHash: string;
+  merkleProof: string[];
+  committedAt: string;
+  status: 'COMMITTED_IMMUTABLE' | 'QUORUM_FAILED_REJECTED';
+}
+
+export interface AgentReasoningGraphSnapshot {
+  agentId: string;
+  sessionToken: string;
+  activeBloomState: string;
+  traversedSymbols: string[];
+  confidenceVector: number[];
+  timestamp: string;
+}
+
+export interface PlanetaryLatticeMetrics {
+  totalActivePeers: number;
+  byzantineFaultToleranceRatio: string; // 67% (2f + 1 quorum)
+  committedBlocksCount: number;
+  activeProposalsCount: number;
+  crossModelDriftScore: number; // 0.00 - 1.00 (lower is more coherent)
+  planetaryMeshPartitionsHealed: number;
+  globalLedgerStateRoot: string;
+}
+
+
 

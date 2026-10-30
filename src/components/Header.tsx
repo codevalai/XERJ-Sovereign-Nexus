@@ -3,6 +3,7 @@ import React from 'react';
 export type ActiveTab =
   | 'repo'
   | 'breakthroughs'
+  | 'consensus'
   | 'constellation'
   | 'router'
   | 'expansion'
@@ -69,6 +70,17 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <span>⚡</span>
           <span>10 Breakthroughs</span>
+        </button>
+        <button
+          onClick={() => onTabChange('consensus')}
+          className={`whitespace-nowrap shrink-0 py-1 transition-colors flex items-center gap-1.5 ${
+            activeTab === 'consensus'
+              ? 'text-emerald-400 font-semibold border-b-2 border-emerald-400'
+              : 'hover:text-slate-200'
+          }`}
+        >
+          <span>🏛️</span>
+          <span>BFT Consensus</span>
         </button>
         <button
           onClick={() => onTabChange('constellation')}

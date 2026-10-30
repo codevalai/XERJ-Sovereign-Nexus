@@ -13,6 +13,7 @@ import { AgenticDiscoveryTab } from './components/AgenticDiscoveryTab.js';
 import { ContributorRitualTab } from './components/ContributorRitualTab.js';
 import { RepoHubTab } from './components/RepoHubTab.js';
 import { BottlenecksTab } from './components/BottlenecksTab.js';
+import { ByzantineConsensusTab } from './components/ByzantineConsensusTab.js';
 import {
   CatalogueEntry,
   HubDomain,
@@ -419,6 +420,10 @@ export default function App() {
 
         {activeTab === 'breakthroughs' && (
           <BottlenecksTab />
+        )}
+
+        {activeTab === 'consensus' && (
+          <ByzantineConsensusTab />
         )}
 
         {activeTab === 'constellation' && (
