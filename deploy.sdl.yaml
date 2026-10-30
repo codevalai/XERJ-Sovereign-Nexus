@@ -1,0 +1,164 @@
+---
+version: "2.0"
+
+# ==============================================================================
+# XERJ Sovereign Nexus — Akash Network Hyper-Crawler Swarm SDL
+# Deploys 4 Specialized Worker Units + NATS JetStream + Tri-Node Embedded Rust Node
+# ==============================================================================
+
+services:
+  # Unit 1: Advisory & Upstream Delta Sentinel
+  xerj-sentinel:
+    image: ghcr.io/xerj-org/xerj-hyper-swarm:latest
+    env:
+      - SENDER_ROLE=SENTINEL_WATCHTOWER
+      - TARGET_HUB=https://hub.xerj.org/api/v1
+      - NATS_URL=nats://nats-jetstream:4222
+      - LOCAL_NODE_URL=http://xerj-node:9200
+      - STALENESS_THRESHOLD_DAYS=24
+    expose:
+      - port: 9100
+        as: 9100
+        to:
+          - service: xerj-orchestrator
+
+  # Unit 2: AST Incremental Code Parser & Bloom Generator
+  xerj-ast-parser:
+    image: ghcr.io/xerj-org/xerj-ast-engine:latest
+    env:
+      - SENDER_ROLE=AST_PARSER_WORKER
+      - NATS_URL=nats://nats-jetstream:4222
+      - BLOOM_NUM_BITS=1024
+      - BLOOM_NUM_HASHES=7
+    expose:
+      - port: 9205
+        as: 9205
+        to:
+          - service: xerj-orchestrator
+
+  # Unit 3: Lane B Identity-Merge Pack Forge & Ed25519 Signer
+  xerj-pack-forge:
+    image: ghcr.io/xerj-org/xerj-pack-forge:latest
+    env:
+      - SENDER_ROLE=LANE_B_FORGE_WORKER
+      - NATS_URL=nats://nats-jetstream:4222
+      - SIGNER_PUBLIC_KEY=14df088737bb523efbcba757d54238e833de0cf5d3ef8411b333a4658097f374
+    expose:
+      - port: 9300
+        as: 9300
+        to:
+          - service: xerj-orchestrator
+
+  # Unit 4: NATS JetStream Distributed State Bus
+  nats-jetstream:
+    image: nats:2.10-alpine
+    command: ["-js", "-m", "8222"]
+    expose:
+      - port: 4222
+        as: 4222
+        to:
+          - service: xerj-sentinel
+          - service: xerj-ast-parser
+          - service: xerj-pack-forge
+          - service: xerj-orchestrator
+      - port: 8222
+        as: 8222
+        web: true
+
+  # Primary Embedded Tri-Node & Control Plane
+  xerj-orchestrator:
+    image: ghcr.io/xerj-org/xerj-sovereign-nexus:latest
+    env:
+      - PORT=3000
+      - NODE_ENV=production
+      - LOCAL_NODE_URL=http://xerj-node:9200
+      - NATS_URL=nats://nats-jetstream:4222
+    expose:
+      - port: 3000
+        as: 80
+        to:
+          - global: true
+
+profiles:
+  compute:
+    xerj-sentinel:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 2Gi
+        storage:
+          size: 10Gi
+    xerj-ast-parser:
+      resources:
+        cpu:
+          units: 2.0
+        memory:
+          size: 4Gi
+        storage:
+          size: 20Gi
+    xerj-pack-forge:
+      resources:
+        cpu:
+          units: 1.5
+        memory:
+          size: 4Gi
+        storage:
+          size: 25Gi
+    nats-jetstream:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 1Gi
+        storage:
+          size: 5Gi
+    xerj-orchestrator:
+      resources:
+        cpu:
+          units: 2.0
+        memory:
+          size: 4Gi
+        storage:
+          size: 15Gi
+
+  placement:
+    akash:
+      pricing:
+        xerj-sentinel:
+          denom: uakt
+          amount: 25000
+        xerj-ast-parser:
+          denom: uakt
+          amount: 50000
+        xerj-pack-forge:
+          denom: uakt
+          amount: 40000
+        nats-jetstream:
+          denom: uakt
+          amount: 15000
+        xerj-orchestrator:
+          denom: uakt
+          amount: 50000
+
+deployment:
+  xerj-sentinel:
+    akash:
+      profile: xerj-sentinel
+      count: 1
+  xerj-ast-parser:
+    akash:
+      profile: xerj-ast-parser
+      count: 2
+  xerj-pack-forge:
+    akash:
+      profile: xerj-pack-forge
+      count: 1
+  nats-jetstream:
+    akash:
+      profile: nats-jetstream
+      count: 1
+  xerj-orchestrator:
+    akash:
+      profile: xerj-orchestrator
+      count: 1

@@ -1,0 +1,7 @@
+{
+  "name": "XERJ Sovereign Nexus",
+  "description": "Decentralized, Sub-Millisecond AST-Aware Corpus Hub, Zero-Knowledge Memory Fabric (zk-ASPF), 7-Hash Bloom Invariant & Autonomous Agent Ingestion Beacon.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
