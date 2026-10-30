@@ -103,3 +103,32 @@ Browser-hosted agents (WebContainers, browser-use runners, E2B microVMs) query p
 - **Bitwise Evaluation**: Dual FNV-1a hashes executed entirely via 32-bit integer arithmetic in `src/wasm/xerjWasmCore.ts`.
 - **Latency Benchmark**: **140 microseconds** execution per 10-token query compared to 45 ms network roundtrips (**320x speedup**).
 - **Zero Server Load**: Queries run client-side; offline airgapped operation supported natively.
+
+---
+
+## 6. The 10 Next-Gen Architectural Breakthroughs
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                   10 BOTTLENECK SHATTERING ARCHITECTURE                 │
+│                                                                        │
+│  [1. MASN]             [2. Wasm Shards]         [3. Neural Checkpoints]│
+│  Multi-Model Syntax     <500 KB Linear Wasm     Immutable Ed25519      │
+│  (Claude/Gemini/GPT)    ~140 µs Cold-Start      Reasoning Graphs       │
+│                                                                        │
+│  [4. zk-Firewall]      [5. Bitswap P2P]         [6. Autonomous DIDs]   │
+│  AST Theorem Prover     256 KB CID Chunking     did:xerj:<hash>        │
+│  Zero-Width Detection   libp2p Stream Mesh      Task Escrows & Badges  │
+│                                                                        │
+│  [7. Tribunal]         [8. Proof-of-Value]      [9. Time-Travel Debug] │
+│  <60s PR Validation    XERJ-VOUCHER Minting     5-Frame Microsecond    │
+│  Ed25519 Merge Sigs    Swarm Citation Economy   State Inspector        │
+│                                                                        │
+│                 [10. Universal Protocol Agnosticism]                   │
+│         Elasticsearch DSL (POST /_search) · LSP (POST /api/lsp)        │
+│             MCP (GET /api/mcp/config) · OpenAPI 3.1 Spec               │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+All 10 breakthrough primitives are fully wired into the unified Express runtime on port 3000 and interactively testable via the `⚡ 10 Breakthroughs` dashboard.
+

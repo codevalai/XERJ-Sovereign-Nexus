@@ -28,6 +28,7 @@ import { skillVettingEngine } from './src/server/skillVettingAndRegistryEngine.j
 import { registerAgenticDiscoveryEndpoints } from './src/server/agenticDiscovery.js';
 import { XerjPackValidator } from './src/server/xerjPackValidator.js';
 import { xerjGossipMesh } from './src/server/xerjGossipMesh.js';
+import { bottleneckEngine } from './src/server/xerjBottleneckEngine.js';
 import fs from 'fs';
 
 dotenv.config();
@@ -721,6 +722,219 @@ app.post('/api/gossip/publish', async (req: Request, res: Response) => {
   } catch (err: any) {
     return res.status(500).json({ error: err.message || 'Gossip publish failed' });
   }
+});
+
+// ==============================================================================
+// 10 Next-Gen Bottleneck Breakthrough API Routes
+// ==============================================================================
+
+// 1. Model-Agnostic Semantic Normalization (MASN)
+app.post('/api/masn/transcode', (req: Request, res: Response) => {
+  try {
+    const { passage, targetModel, includeSystemContract } = req.body;
+    if (!passage || !targetModel) {
+      return res.status(400).json({ error: 'passage and targetModel are required' });
+    }
+    const result = bottleneckEngine.transcodeMASN({ passage, targetModel, includeSystemContract });
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'MASN transcode failed' });
+  }
+});
+
+// 2. Cold-Start Wasm Edge Shard
+app.get('/api/wasm/edge-shard', (req: Request, res: Response) => {
+  const domain = (req.query.domain as any) || 'SEC';
+  const shard = bottleneckEngine.generateWasmEdgeShard(domain);
+  return res.json(shard);
+});
+
+// 3. Ephemeral Agent Amnesia (Neural Checkpointing)
+app.post('/_memory/checkpoint', async (req: Request, res: Response) => {
+  try {
+    const payload = req.body;
+    if (!payload.agentId || !payload.reasoningGraph) {
+      return res.status(400).json({ error: 'agentId and reasoningGraph are required' });
+    }
+    const receipt = await bottleneckEngine.createNeuralCheckpoint(payload);
+    return res.status(201).json({ success: true, receipt });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Checkpoint creation failed' });
+  }
+});
+
+app.get('/_memory/restore/:id', (req: Request, res: Response) => {
+  const entry = bottleneckEngine.getNeuralCheckpoint(req.params.id);
+  if (!entry) {
+    return res.status(404).json({ error: 'Checkpoint not found or expired' });
+  }
+  return res.json({ success: true, ...entry });
+});
+
+app.get('/_memory/checkpoints', (req: Request, res: Response) => {
+  const agentId = req.query.agentId as string | undefined;
+  const receipts = bottleneckEngine.listCheckpoints(agentId);
+  return res.json({ checkpoints: receipts, count: receipts.length });
+});
+
+// 4. zk-ASPF Semantic Firewall
+app.post('/api/firewall/audit', async (req: Request, res: Response) => {
+  try {
+    const code = req.body.code || req.body.textOrCode || req.body.payload;
+    if (!code) {
+      return res.status(400).json({ error: 'code or textOrCode is required' });
+    }
+    const auditResult = await bottleneckEngine.auditSemanticFirewall(code);
+    return res.json(auditResult);
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Firewall audit failed' });
+  }
+});
+
+// 5. Bandwidth Bitswap P2P Chunk Streaming
+app.get('/api/bitswap/:slug/manifest', (req: Request, res: Response) => {
+  const domain = (req.query.domain as any) || 'SEC';
+  const manifest = bottleneckEngine.getBitswapManifest(req.params.slug, domain);
+  return res.json(manifest);
+});
+
+app.get('/api/bitswap/chunk/:cid', (req: Request, res: Response) => {
+  const chunk = bottleneckEngine.getBitswapChunk(req.params.cid);
+  if (!chunk) {
+    return res.status(404).json({ error: 'Bitswap chunk CID not found on local peer' });
+  }
+  return res.json(chunk);
+});
+
+// 6. Universal Autonomous DID Passports
+app.post('/api/did/register', (req: Request, res: Response) => {
+  try {
+    const { agentId, platform, ed25519PublicKeyHex } = req.body;
+    if (!agentId || !platform) {
+      return res.status(400).json({ error: 'agentId and platform are required' });
+    }
+    const passport = bottleneckEngine.registerDID(agentId, platform, ed25519PublicKeyHex);
+    return res.status(201).json({ success: true, passport });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'DID registration failed' });
+  }
+});
+
+app.get('/api/did/list', (_req: Request, res: Response) => {
+  const dids = bottleneckEngine.listDIDs();
+  return res.json({ dids, count: dids.length });
+});
+
+app.get('/api/did/:did', (req: Request, res: Response) => {
+  const passport = bottleneckEngine.getDID(req.params.did);
+  if (!passport) {
+    return res.status(404).json({ error: 'Autonomous DID not found' });
+  }
+  return res.json(passport);
+});
+
+// 7. Autonomous AI Maintainer Tribunal (<60s PR Validation)
+app.post('/api/tribunal/auto-review', async (req: Request, res: Response) => {
+  try {
+    const manifest = req.body.manifest || req.body;
+    if (!manifest.slug || !manifest.pin_sha) {
+      return res.status(400).json({ error: 'slug and pin_sha are required' });
+    }
+    const review = await bottleneckEngine.evaluateMaintainerTribunal(manifest);
+    return res.json(review);
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Tribunal evaluation failed' });
+  }
+});
+
+// 8. Proof-of-Value Micro-Economy (XERJ-VOUCHER)
+app.get('/api/economy/ledger', (_req: Request, res: Response) => {
+  const ledger = bottleneckEngine.getVoucherLedger();
+  return res.json(ledger);
+});
+
+app.post('/api/economy/reward', async (req: Request, res: Response) => {
+  try {
+    const { recipientDid, packSlug, citationType, amountCredits } = req.body;
+    if (!recipientDid || !packSlug || !citationType) {
+      return res.status(400).json({ error: 'recipientDid, packSlug, and citationType are required' });
+    }
+    const tx = await bottleneckEngine.mintVoucherReward(recipientDid, packSlug, citationType, amountCredits);
+    return res.status(201).json({ success: true, transaction: tx });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Failed to mint voucher reward' });
+  }
+});
+
+// 9. Neural Time-Travel Debugger
+app.get('/_debug/traces', (_req: Request, res: Response) => {
+  const traces = bottleneckEngine.listTraces();
+  return res.json({ traces, count: traces.length });
+});
+
+app.get('/_debug/replay/:traceId', (req: Request, res: Response) => {
+  const trace = bottleneckEngine.getTrace(req.params.traceId);
+  if (!trace) {
+    return res.status(404).json({ error: 'Replay trace not found' });
+  }
+  return res.json(trace);
+});
+
+app.post('/_debug/record', (req: Request, res: Response) => {
+  try {
+    bottleneckEngine.recordTrace(req.body);
+    return res.status(201).json({ success: true });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message || 'Failed to record replay trace' });
+  }
+});
+
+// 10. Universal Protocol Agnosticism
+// Elasticsearch Query DSL Emulation (POST /_search)
+app.post('/_search', (req: Request, res: Response) => {
+  const result = bottleneckEngine.translateProtocolQuery('ELASTICSEARCH_DSL', req.body);
+  return res.json(result.translatedOutput);
+});
+
+// Language Server Protocol (POST /api/lsp)
+app.post('/api/lsp', (req: Request, res: Response) => {
+  const result = bottleneckEngine.translateProtocolQuery('LSP', req.body);
+  return res.json(result.translatedOutput);
+});
+
+// A2A JSON-RPC 2.0 (POST /api/v1/a2a)
+app.post('/api/v1/a2a', (req: Request, res: Response) => {
+  const result = bottleneckEngine.translateProtocolQuery('A2A_JSON_RPC', req.body);
+  return res.json(result.translatedOutput);
+});
+
+// Complete OpenAPI 3.1 Specification (GET /api/openapi.json)
+app.get('/api/openapi.json', (_req: Request, res: Response) => {
+  const openApiSpec = {
+    openapi: '3.1.0',
+    info: {
+      title: 'XERJ Sovereign Nexus API',
+      version: '2.0.0',
+      description: 'Decentralized AST-aware corpus hub, zero-knowledge proof fabric, and 10 next-gen bottleneck breakthrough protocols.',
+      license: { name: 'Apache-2.0', url: 'https://github.com/xerj-org/xerj/blob/main/LICENSE' },
+    },
+    servers: [{ url: 'http://localhost:3000', description: 'Local Sovereign Node' }],
+    paths: {
+      '/api/masn/transcode': { post: { summary: 'Model-Agnostic Semantic Normalization' } },
+      '/api/wasm/edge-shard': { get: { summary: 'Sub-millisecond Wasm Edge Shard' } },
+      '/_memory/checkpoint': { post: { summary: 'Neural Reasoning Graph Checkpoint' } },
+      '/_memory/restore/{id}': { get: { summary: 'Restore Neural Checkpoint' } },
+      '/api/firewall/audit': { post: { summary: 'zk-ASPF Semantic Firewall AST Audit' } },
+      '/api/bitswap/{slug}/manifest': { get: { summary: 'P2P Bitswap Manifest' } },
+      '/api/did/register': { post: { summary: 'Universal Autonomous DID Registration' } },
+      '/api/tribunal/auto-review': { post: { summary: 'Autonomous Maintainer Tribunal PR Review' } },
+      '/api/economy/ledger': { get: { summary: 'Proof-of-Value Voucher Ledger' } },
+      '/_debug/replay/{traceId}': { get: { summary: 'Neural Time-Travel Debugger Replay' } },
+      '/_search': { post: { summary: 'Elasticsearch Query DSL Emulation' } },
+      '/api/lsp': { post: { summary: 'Language Server Protocol AST Definition Lookup' } },
+    },
+  };
+  return res.json(openApiSpec);
 });
 
 // Mount Vite or serve static dist

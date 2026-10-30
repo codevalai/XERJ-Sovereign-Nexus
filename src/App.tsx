@@ -12,6 +12,7 @@ import { SkillVettingTab } from './components/SkillVettingTab.js';
 import { AgenticDiscoveryTab } from './components/AgenticDiscoveryTab.js';
 import { ContributorRitualTab } from './components/ContributorRitualTab.js';
 import { RepoHubTab } from './components/RepoHubTab.js';
+import { BottlenecksTab } from './components/BottlenecksTab.js';
 import {
   CatalogueEntry,
   HubDomain,
@@ -414,6 +415,10 @@ export default function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
         {activeTab === 'repo' && (
           <RepoHubTab onNavigateToRitual={() => setActiveTab('ritual')} />
+        )}
+
+        {activeTab === 'breakthroughs' && (
+          <BottlenecksTab />
         )}
 
         {activeTab === 'constellation' && (

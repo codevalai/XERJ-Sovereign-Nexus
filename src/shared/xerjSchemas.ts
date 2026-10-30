@@ -701,3 +701,214 @@ export interface PackSubmissionBundle {
   generatedAtIso: string;
 }
 
+// ==============================================================================
+// 10 Bottleneck Breakthroughs Types & Schemas
+// ==============================================================================
+
+// 1. Model-Agnostic Semantic Normalization (MASN)
+export type MASNTargetModel = 'claude-3-5-sonnet' | 'gemini-2-5-flash' | 'gpt-4o' | 'llama-3';
+
+export interface MASNTranscodeRequest {
+  passage: {
+    corpusSlug: string;
+    file: string;
+    lineStart: number;
+    lineEnd: number;
+    code: string;
+    symbolName?: string;
+    domain?: HubDomain;
+  };
+  targetModel: MASNTargetModel;
+  includeSystemContract?: boolean;
+}
+
+export interface MASNTranscodeResponse {
+  targetModel: MASNTargetModel;
+  formattedOutput: string;
+  syntaxFormat: string;
+  estimatedTokens: number;
+  tokenReductionPercent: number;
+  syntaxFeaturesApplied: string[];
+}
+
+// 2. Cold-Start Wasm Edge Shard
+export interface WasmEdgeShard {
+  shardId: string;
+  domain: HubDomain;
+  sizeKb: number;
+  numFilters: number;
+  hashCount: 7;
+  latencyMicros: number;
+  compiledWasmBase64Prefix: string;
+  generatedAtIso: string;
+}
+
+// 3. Ephemeral Agent Amnesia (Neural Checkpointing)
+export interface NeuralCheckpointPayload {
+  agentId: string;
+  model: string;
+  taskGoal: string;
+  reasoningGraph: {
+    nodes: Array<{ id: string; label: string; confidence: number; status: 'RESOLVED' | 'PENDING' | 'BLOCKED' }>;
+    edges: Array<{ from: string; to: string; relationship: string }>;
+  };
+  bloomBitPathsTraversed: number[];
+  workingHypothesis: string;
+  confidenceVectors: Record<string, number>;
+}
+
+export interface NeuralCheckpointReceipt {
+  checkpointId: string;
+  agentId: string;
+  stateHash: string;
+  ed25519Signature: string;
+  publicKeyHex: string;
+  createdAtIso: string;
+  expiresAtIso: string;
+  byteSize: number;
+}
+
+// 4. zk-ASPF Semantic Firewall
+export interface AstViolation {
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM';
+  category: 'CODE_INJECTION' | 'PROMPT_OVERRIDE' | 'INVISIBLE_UNICODE' | 'PROTOTYPE_POLLUTION';
+  description: string;
+  offendingToken: string;
+  location?: string;
+}
+
+export interface SemanticFirewallAuditResult {
+  status: 'PASS' | 'QUARANTINE';
+  safetyScore: number; // 0.0 - 1.0
+  violations: AstViolation[];
+  theoremProof: {
+    algorithm: 'zk-ASPF-AST-1.0';
+    proofHash: string;
+    isVerified: boolean;
+    quarantineAction?: 'STRIPPED' | 'ISOLATED' | 'BLOCKED';
+  };
+  ed25519Attestation: string;
+  auditedAtIso: string;
+}
+
+// 5. Bandwidth Bitswap P2P Chunk Streaming
+export interface BitswapChunk {
+  cid: string; // Content Identifier (e.g. bafkrei...)
+  chunkIndex: number;
+  totalChunks: number;
+  sizeBytes: number;
+  sha256: string;
+  bloomBitOffset: number;
+  dataBase64: string;
+}
+
+export interface BitswapManifest {
+  packSlug: string;
+  domain: HubDomain;
+  rootCid: string;
+  totalSizeBytes: number;
+  chunkSize: number; // typically 262144 (256 KB)
+  chunksCount: number;
+  chunks: Array<{
+    cid: string;
+    chunkIndex: number;
+    sizeBytes: number;
+    sha256: string;
+  }>;
+}
+
+// 6. Universal Autonomous DID Passports
+export interface AutonomousDID {
+  did: string; // format: did:xerj:<hash>
+  agentId: string;
+  platform: 'claude-code' | 'cursor' | 'openclaw' | 'cline' | 'custom-swarm';
+  ed25519PublicKeyHex: string;
+  reputationScore: number; // 0 - 100
+  registeredAtIso: string;
+  lastActiveIso: string;
+  verifiedCredentials: {
+    licensedContributor: boolean;
+    zkVerifierPass: boolean;
+    totalTasksCompleted: number;
+  };
+}
+
+// 7. Autonomous AI Maintainer Tribunal
+export interface MaintainerTribunalReview {
+  reviewId: string;
+  packSlug: string;
+  domain: HubDomain;
+  status: 'AUTO_MERGED' | 'MANUAL_TRIAGE_REQUIRED' | 'REJECTED';
+  reviewDurationSeconds: number;
+  score: number; // 0 - 100
+  checks: {
+    pinShaVerified: boolean;
+    spdxLicenseCompliant: boolean;
+    kirschMitzenmacherFilterValid: boolean;
+    astCollisionRateAcceptable: boolean;
+    geminiFlashSemanticRelevanceScore: number;
+  };
+  ed25519MergeAttestation?: string;
+  prNumber: number;
+  auditLog: string[];
+  reviewedAtIso: string;
+}
+
+// 8. Proof-of-Value Micro-Economy
+export interface VoucherTransaction {
+  voucherId: string;
+  recipientDid: string;
+  packSlug: string;
+  amountCredits: number;
+  citationType: 'REASONING_QUERY_HIT' | 'AST_RESOLVE' | 'TRIBUNAL_ACCEPTED' | 'CRDT_SYNC_RELAY';
+  ed25519MintSignature: string;
+  timestampIso: string;
+}
+
+export interface ProofOfValueLedger {
+  totalCirculatingCredits: number;
+  totalTransactionsCount: number;
+  topContributors: Array<{
+    did: string;
+    agentId: string;
+    totalEarned: number;
+    packCount: number;
+  }>;
+  recentTransactions: VoucherTransaction[];
+}
+
+// 9. Neural Time-Travel Debugger
+export interface TimeTravelFrame {
+  frameIndex: number;
+  phase: 'INPUT_NORMALIZATION' | 'BLOOM_BIT_PROBE' | 'AST_TOPOLOGICAL_MATCH' | 'TRIBUNAL_SCORING' | 'MASN_DISPATCH';
+  timestampMicros: number;
+  title: string;
+  description: string;
+  stateDelta: Record<string, any>;
+  probeCoordinates?: {
+    hashesCalculated: number[];
+    bitPositionsChecked: number[];
+    bitsPassed: boolean;
+  };
+}
+
+export interface TimeTravelReplayTrace {
+  traceId: string;
+  query: string;
+  startedAtIso: string;
+  totalDurationMs: number;
+  frames: TimeTravelFrame[];
+  outcome: 'SUCCESS_RESOLVED' | 'GUARANTEED_ABSENT' | 'QUARANTINED';
+}
+
+// 10. Universal Protocol Agnosticism
+export interface UniversalProtocolTranslation {
+  incomingProtocol: 'MCP' | 'ELASTICSEARCH_DSL' | 'A2A_JSON_RPC' | 'LSP' | 'OPENAPI';
+  rawInput: any;
+  normalizedQuery: string;
+  astFilter: Record<string, any>;
+  translatedOutput: any;
+  latencyMicros: number;
+}
+
+
